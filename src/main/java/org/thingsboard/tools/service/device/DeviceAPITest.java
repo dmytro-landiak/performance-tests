@@ -15,13 +15,19 @@
  */
 package org.thingsboard.tools.service.device;
 
+import java.io.IOException;
+
 public interface DeviceAPITest {
 
     void createDevices() throws Exception;
+
+    void getDevices() throws Exception;
 
     void removeDevices() throws Exception;
 
     void warmUpDevices() throws InterruptedException;
 
-    void runApiTests(int publishTelemetryCount, final int publishTelemetryPause) throws InterruptedException;
+    void runApiTests(int publishTelemetryCount, final int publishTelemetryPause) throws InterruptedException, IOException;
+
+    void runApiTestsOae(int publishTelemetryCount, final int publishTelemetryPause) throws InterruptedException, IOException;
 }

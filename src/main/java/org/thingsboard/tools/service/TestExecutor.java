@@ -32,6 +32,9 @@ public class TestExecutor {
     @Value("${device.createOnStart}")
     private boolean deviceCreateOnStart;
 
+    @Value("${device.getOnStart}")
+    private boolean deviceGetOnStart;
+
     @Value("${device.deleteOnComplete}")
     private boolean deviceDeleteOnComplete;
 
@@ -59,9 +62,13 @@ public class TestExecutor {
             deviceAPITest.createDevices();
         }
 
-        deviceAPITest.warmUpDevices();
+        if (deviceGetOnStart) {
+            deviceAPITest.getDevices();
+        }
 
-        ruleChainManager.createRuleChainWithCountNodeAndSetAsRoot();
+        //deviceAPITest.warmUpDevices();
+
+        //ruleChainManager.createRuleChainWithCountNodeAndSetAsRoot();
 
         statisticsCollector.start();
 
@@ -71,9 +78,9 @@ public class TestExecutor {
 
         Thread.sleep(3000); // wait for messages delivery before removing rule chain
 
-        ruleChainManager.revertRootNodeAndCleanUp();
+        //ruleChainManager.revertRootNodeAndCleanUp();
 
-        statisticsCollector.printResults();
+        //statisticsCollector.printResults();
 
         if (deviceDeleteOnComplete) {
             deviceAPITest.removeDevices();

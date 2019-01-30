@@ -15,14 +15,10 @@
  */
 package org.thingsboard.tools.service.device;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.handler.ssl.SslContextBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.client.Netty4ClientHttpRequestFactory;
-import org.springframework.web.client.AsyncRestTemplate;
 import org.thingsboard.client.tools.RestClient;
 import org.thingsboard.server.common.data.Device;
 import org.thingsboard.server.common.data.id.DeviceId;
@@ -31,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,6 +48,9 @@ public abstract class BaseDeviceAPITest implements DeviceAPITest {
     @Value("${device.endIdx}")
     int deviceEndIdx;
 
+    @Value("${device.countToFetch}")
+    private int deviceCountFetched;
+
     @Value("${rest.url}")
     String restUrl;
 
@@ -70,6 +69,7 @@ public abstract class BaseDeviceAPITest implements DeviceAPITest {
     final ExecutorService testExecutor = Executors.newFixedThreadPool(100);
 
     private final List<DeviceId> deviceIds = Collections.synchronizedList(new ArrayList<>());
+    final List<String> deviceTokens = Collections.synchronizedList(new ArrayList<>());
 
     void init() {
         deviceCount = deviceEndIdx - deviceStartIdx;
@@ -119,6 +119,19 @@ public abstract class BaseDeviceAPITest implements DeviceAPITest {
         }
         latch.await();
         log.info("{} devices have been created successfully!", deviceIds.size());
+    }
+
+    @Override
+    public void getDevices() throws Exception {
+        restClient.login(username, password);
+        log.info("Fetching the devices...");
+        Optional<JsonNode> devicesOptional = restClient.findTenantDevices(deviceCountFetched);
+        if (devicesOptional.isPresent()) {
+            for (JsonNode deviceNode : devicesOptional.get().get("data")) {
+                deviceTokens.add(restClient.getCredentials(DeviceId.fromString(deviceNode.get("id").get("id").asText()))
+                        .getCredentialsId());
+            }
+        }
     }
 
     @Override

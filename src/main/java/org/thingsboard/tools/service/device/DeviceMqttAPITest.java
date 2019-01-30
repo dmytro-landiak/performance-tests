@@ -30,6 +30,7 @@ import org.thingsboard.mqtt.MqttConnectResult;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -141,6 +142,11 @@ public class DeviceMqttAPITest extends BaseDeviceAPITest {
         testPublishExecutor.shutdownNow();
         log.info("Performance test was completed for {} devices!", mqttClients.size());
         log.info("{} messages were published successfully, {} failed!", successPublishedCount.get(), failedPublishedCount.get());
+    }
+
+    @Override
+    public void runApiTestsOae(int publishTelemetryCount, int publishTelemetryPause) throws InterruptedException, IOException {
+        log.info("Did not implemented for MQTT!");
     }
 
     @Override
