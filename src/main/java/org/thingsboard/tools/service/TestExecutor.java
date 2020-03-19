@@ -29,11 +29,11 @@ import javax.annotation.PostConstruct;
 @Service
 public class TestExecutor {
 
-    @Value("${device.createOnStart}")
-    private boolean deviceCreateOnStart;
+    @Value("${entity.createOnStart}")
+    private boolean createOnStart;
 
-    @Value("${device.deleteOnComplete}")
-    private boolean deviceDeleteOnComplete;
+    @Value("${entity.deleteOnComplete}")
+    private boolean deleteOnComplete;
 
     @Value("${publish.count}")
     private int publishTelemetryCount;
@@ -41,7 +41,7 @@ public class TestExecutor {
     @Value("${publish.pause}")
     private int publishTelemetryPause;
 
-    @Value("${device.api}")
+    @Value("${entity.api}")
     private String deviceAPIType;
 
     @Autowired
@@ -55,28 +55,25 @@ public class TestExecutor {
 
     @PostConstruct
     public void init() throws Exception {
-        if (deviceCreateOnStart) {
+        if (createOnStart) {
             deviceAPITest.createDevices();
+            deviceAPITest.createAssets();
+
+            deviceAPITest.createRelations();
+
+            deviceAPITest.saveAssetAttributes();
+            deviceAPITest.saveDeviceAttributes();
         }
 
-        deviceAPITest.warmUpDevices(publishTelemetryPause);
-
-        ruleChainManager.createRuleChainWithCountNodeAndSetAsRoot();
-
-        statisticsCollector.start();
+//        deviceAPITest.warmUpDevices(publishTelemetryPause);
 
         deviceAPITest.runApiTests(publishTelemetryCount, publishTelemetryPause);
 
-        statisticsCollector.end();
-
         Thread.sleep(3000); // wait for messages delivery before removing rule chain
 
-        ruleChainManager.revertRootNodeAndCleanUp();
-
-        statisticsCollector.printResults();
-
-        if (deviceDeleteOnComplete) {
+        if (deleteOnComplete) {
             deviceAPITest.removeDevices();
+            deviceAPITest.removeAssets();
         }
     }
 

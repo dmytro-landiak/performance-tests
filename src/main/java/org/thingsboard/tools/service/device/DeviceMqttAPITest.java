@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
-@ConditionalOnProperty(prefix = "device", value = "api", havingValue = "MQTT")
+@ConditionalOnProperty(prefix = "entity", value = "api", havingValue = "MQTT")
 public class DeviceMqttAPITest extends BaseDeviceAPITest {
 
     private static final int CONNECT_TIMEOUT = 5;
@@ -189,13 +189,13 @@ public class DeviceMqttAPITest extends BaseDeviceAPITest {
 
     @Override
     public void warmUpDevices(final int publishTelemetryPause) throws InterruptedException {
-        log.info("Connecting {} devices...", deviceCount);
+        log.info("Connecting {} devices...", entityCount);
         AtomicInteger totalConnectedCount = new AtomicInteger();
-        CountDownLatch connectLatch = new CountDownLatch(deviceCount);
+        CountDownLatch connectLatch = new CountDownLatch(entityCount);
         int idx = 0;
-        for (int i = deviceStartIdx; i < deviceEndIdx; i++) {
+        for (int i = entityStartIdx; i < entityEndIdx; i++) {
             final int tokenNumber = i;
-            final int delayPause = (int) ((double) publishTelemetryPause / deviceCount * idx);
+            final int delayPause = (int) ((double) publishTelemetryPause / entityCount * idx);
             idx++;
             warmUpExecutor.schedule(() -> {
                 try {

@@ -19,7 +19,17 @@ public interface DeviceAPITest {
 
     void createDevices() throws Exception;
 
+    void createAssets() throws Exception;
+
     void removeDevices() throws Exception;
+
+    void removeAssets() throws Exception;
+
+    void createRelations() throws Exception;
+
+    void saveAssetAttributes() throws Exception;
+
+    void saveDeviceAttributes() throws Exception;
 
     void warmUpDevices(final int publishTelemetryPause) throws InterruptedException;
 

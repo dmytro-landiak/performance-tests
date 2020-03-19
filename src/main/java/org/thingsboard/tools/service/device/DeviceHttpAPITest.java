@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
-@ConditionalOnProperty(prefix = "device", value = "api", havingValue = "HTTP")
+@ConditionalOnProperty(prefix = "entity", value = "api", havingValue = "HTTP")
 public class DeviceHttpAPITest extends BaseDeviceAPITest {
 
     private EventLoopGroup eventLoopGroup;
@@ -64,21 +64,21 @@ public class DeviceHttpAPITest extends BaseDeviceAPITest {
     @Override
     public void runApiTests(int publishTelemetryCount, final int publishTelemetryPause) throws InterruptedException {
         restClient.login(username, password);
-        log.info("Starting performance test for {} devices...", deviceCount);
+        log.info("Starting performance test for {} devices...", entityCount);
         long maxDelay = publishTelemetryPause * publishTelemetryCount;
-        final int totalMessagesToPublish = deviceCount * publishTelemetryCount;
+        final int totalMessagesToPublish = entityCount * publishTelemetryCount;
         AtomicInteger totalPublishedCount = new AtomicInteger();
         AtomicInteger successPublishedCount = new AtomicInteger();
         AtomicInteger failedPublishedCount = new AtomicInteger();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> entity = new HttpEntity<>(dataAsStr, headers);
+        HttpEntity<String> entity = new HttpEntity<>(generateNode(), headers);
 
         int idx = 0;
-        for (int i = deviceStartIdx; i < deviceEndIdx; i++) {
+        for (int i = entityStartIdx; i < entityEndIdx; i++) {
             final int tokenNumber = i;
-            final int delayPause = (int) ((double) publishTelemetryPause / deviceCount * idx);
+            final int delayPause = (int) ((double) publishTelemetryPause / entityCount * idx);
             idx++;
             schedulerExecutor.scheduleAtFixedRate(() -> {
                 try {
@@ -129,24 +129,24 @@ public class DeviceHttpAPITest extends BaseDeviceAPITest {
         tokenRefreshScheduleFuture.cancel(true);
         schedulerExecutor.shutdownNow();
 
-        log.info("Performance test was completed for {} devices!", deviceCount);
+        log.info("Performance test was completed for {} devices!", entityCount);
         log.info("{} messages were published successfully, {} failed!", successPublishedCount.get(), failedPublishedCount.get());
     }
 
     @Override
     public void warmUpDevices(final int publishTelemetryPause) throws InterruptedException {
         restClient.login(username, password);
-        log.info("Warming up {} devices...", deviceCount);
-        CountDownLatch connectLatch = new CountDownLatch(deviceCount);
+        log.info("Warming up {} devices...", entityCount);
+        CountDownLatch connectLatch = new CountDownLatch(entityCount);
         AtomicInteger totalWarmedUpCount = new AtomicInteger();
-        for (int i = deviceStartIdx; i < deviceEndIdx; i++) {
+        for (int i = entityStartIdx; i < entityEndIdx; i++) {
             final int tokenNumber = i;
             httpExecutor.submit(() -> {
                 try {
                     String token = getToken(tokenNumber);
                     restClient.getRestTemplate()
                             .postForEntity(restUrl + "/api/v1/{token}/telemetry",
-                                    mapper.readTree(dataAsStr),
+                                    mapper.readTree(generateNode()),
                                     ResponseEntity.class,
                                     token);
                 } catch (Exception e) {
