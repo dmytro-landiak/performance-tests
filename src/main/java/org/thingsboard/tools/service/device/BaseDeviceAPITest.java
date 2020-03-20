@@ -454,7 +454,7 @@ public abstract class BaseDeviceAPITest implements DeviceAPITest {
         }
     }
 
-    private int generateValue(int min, int max) {
+    int generateValue(int min, int max) {
         if (min >= max) {
             throw new IllegalArgumentException("Max value must be greater than min value!");
         }

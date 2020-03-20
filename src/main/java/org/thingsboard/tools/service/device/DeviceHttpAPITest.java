@@ -82,6 +82,7 @@ public class DeviceHttpAPITest extends BaseDeviceAPITest {
             idx++;
             schedulerExecutor.scheduleAtFixedRate(() -> {
                 try {
+                    Thread.sleep(generateValue(1, 60));
                     String token = getToken(tokenNumber);
                     String url = restUrl + "/api/v1/" + token + "/telemetry";
                     ListenableFuture<ResponseEntity<Void>> future = httpClient.exchange(url, HttpMethod.POST, entity, Void.class);

@@ -135,6 +135,7 @@ public class DeviceMqttAPITest extends BaseDeviceAPITest {
             i++;
             schedulerExecutor.scheduleAtFixedRate(() -> {
                 try {
+                    Thread.sleep(generateValue(1, 60));
                     mqttClient.publish("v1/devices/me/telemetry", Unpooled.wrappedBuffer(data), MqttQoS.AT_LEAST_ONCE)
                             .addListener(future -> {
                                         if (future.isSuccess()) {
